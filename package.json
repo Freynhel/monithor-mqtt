@@ -1,13 +1,13 @@
 {
-	"name": "elysia-next-mqtt",
+	"name": "monithor-mqtt",
 	"private": true,
 	"workspaces": [
 		"apps/*",
 		"packages/*"
 	],
 	"scripts": {
-		"dev:api": "bun --filter api dev",
-		"dev:web": "bun --filter web dev",
-		"dev": "bun run --filter '*' dev --parallel"
+		"dev:api": "bun --filter elysia-mqtt dev",
+		"dev:web": "bun --filter nextjs-mqtt dev",
+		"dev": "bun run --parallel --filter '*' dev"
 	}
 }

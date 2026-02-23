@@ -1,1 +1,1 @@
-install = { linker = "hoisted" }
+install = { linker = "isolated" }
