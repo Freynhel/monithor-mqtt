@@ -9,5 +9,8 @@
 		"dev:api": "bun --filter elysia-mqtt dev",
 		"dev:web": "bun --filter nextjs-mqtt dev",
 		"dev": "bun run --parallel --filter '*' dev"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.3.9"
 	}
 }

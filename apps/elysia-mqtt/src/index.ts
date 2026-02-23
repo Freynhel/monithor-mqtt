@@ -5,12 +5,12 @@ const user = new Elysia()
 	.get("/users", async () => {
 		return qb.select("Users"); // SELECT * FROM [Users]
 	})
-	.get("/users/:id", async ({ params }) => {
+	.get("/users/:id", async ({ params }: { params: { id: string } }) => {
 		const id = Number(params.id);
 		const rows = await qb.select("Users", { id });
 		return rows[0] ?? null;
 	})
-	.post("/users", async ({ body }) => {
+	.post("/users", async ({ body }: { body: unknown }) => {
 			const { email, name } = body as { email: string; name: string };
 			return qb.insert("Users", { email, name });
 		}, {
@@ -20,7 +20,7 @@ const user = new Elysia()
 			}),
 		},
 	)
-	.put("/users/:id", async ({ params, body }) => {
+	.put("/users/:id", async ({ params, body }: { params: { id: string }; body: unknown }) => {
 			const id = Number(params.id);
 			const updated = await qb.update(
 				"Users",
@@ -37,7 +37,7 @@ const user = new Elysia()
 			),
 		},
 	)
-	.delete("/users/:id", async ({ params }) => {
+	.delete("/users/:id", async ({ params }: { params: { id: string } }) => {
 		const id = Number(params.id);
 		const count = await qb.remove("Users", { id });
 		return { deleted: count };
