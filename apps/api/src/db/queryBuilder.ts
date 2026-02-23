@@ -3,11 +3,11 @@ import sql, { config as SqlConfig, IResult } from "mssql";
 const config: SqlConfig = {
 	user: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
-	server: process.env.DB_HOST ?? "localhost",
+	server: process.env.DB_SERVER ?? "localhost",
 	database: process.env.DB_NAME,
 	options: {
-		encrypt: true,
-		trustServerCertificate: true,
+		encrypt: false,
+		trustServerCertificate: false,
 	},
 	pool: { max: 10, min: 0, idleTimeoutMillis: 30000 },
 };

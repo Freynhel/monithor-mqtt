@@ -1,1 +1,1 @@
-linker = "hoisted"
+install = { linker = "hoisted" }
