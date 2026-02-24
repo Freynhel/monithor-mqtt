@@ -7,6 +7,19 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
+        "rounded-xl border border-slate-700/50 bg-slate-900/60 backdrop-blur-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardDefault({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card"
+      className={cn(
         "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
         className
       )}
@@ -15,7 +28,21 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+{/* Overhide for card Header */}
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-header"
+      className={cn(
+        "flex items-center justify-between px-5 py-4 border-b border-slate-700/40",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+/* function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-header"
@@ -26,7 +53,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
       {...props}
     />
   )
-}
+} */
 
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -83,6 +110,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 export {
   Card,
+  CardDefault,
   CardHeader,
   CardFooter,
   CardTitle,
