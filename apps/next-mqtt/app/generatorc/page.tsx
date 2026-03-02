@@ -67,6 +67,9 @@ const payload = {
 		{ label: "Aparente", value: "348", unit: "kVA", icon: ChartColumn, color: "fuchsia", },
 		{ label: "Fat. Potência", value: "0.99", unit: "", color: "violet", }
 	],
+	"dataTable": [
+
+	],
 }
 
 
@@ -159,6 +162,7 @@ export default function GeneratorView() {
 		</div>
 
 		{/* Tabela */}
+		
 	</div>	
 	);
 }
