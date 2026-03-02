@@ -2,10 +2,12 @@
 
 import MetricContainer from "@/components/metrics/MetricContainer";
 import MetricCard from "@/components/metrics/MetricCard";
-import { Activity, Zap, ChartColumn, Info, Cpu, Check, Gauge, BatteryCharging, ThermometerSnowflake, Wifi, Fuel, WavesArrowDown, Waves, Power, SquareArrowRight } from "lucide-react";
+import Header from "./Header";
+import { Activity, Zap, ChartColumn, Info, Cpu, Check, Gauge, BatteryCharging, ThermometerSnowflake, Wifi, Fuel, WavesArrowDown, Waves, Power, SquareArrowRight, TriangleAlert, ChartNetwork } from "lucide-react";
 
 const payloadX = [
 	{
+		id: 1,
 		label: "Funcionamento",
 		value: "4.820",
 		unit: "h",
@@ -13,18 +15,11 @@ const payloadX = [
 		color: "teal",
 	},
 	{
-		label: "Rotação",
-		value: "1.740",
-		unit: "rpm",
-		icon: Gauge,
-		color: "blue",
-	},
-	{
 		label: "Partidas",
 		value: "660",
 		unit: "",
 		icon: Power,
-		color: "red",				
+		color: "pink",				
 	},
 	{
 		label: "Temp. Refrig.",
@@ -34,39 +29,60 @@ const payloadX = [
 		color: "yellow",
 	},
 	{
+		id: 4,
 		label: "Pressão Óleo",
 		value: "8,4",
 		unit: "KPA",
 		icon: WavesArrowDown,
-		color: "orange",
+		color: "blue",
 	},
 	{
-		label: "Tensão Bateria",
-		value: "27",
-		unit: "Vcc",
-		icon: BatteryCharging,
-		color: "green",
-	},
-	{
-		label: "Nível Combustível",
-		value: "100",
-		unit: "%",
-		icon: Fuel,
-		color: "pink",
-	},
-	{
-		label: "Frequência",
-		value: "60,0",
-		unit: "Hz",
-		icon: Wifi,
-		color: "purple",
-	},
-	{
+		id: 5,
 		label: "Modo de Operação",
 		value: "Auto",
 		unit: "",
 		icon: SquareArrowRight,
-		color: "violet",
+		color: "orange",
+	},
+	{
+		id: 6,
+		label: "Rotação",
+		value: "1.740",
+		unit: "rpm",
+		icon: Gauge,
+		color: "teal",
+	},
+	{
+		id: 7,
+		label: "Frequência",
+		value: "60,0",
+		unit: "Hz",
+		icon: Wifi,
+		color: "pink",
+	},
+	{
+		id: 8,
+		label: "Tensão Bateria",
+		value: "27",
+		unit: "Vcc",
+		icon: BatteryCharging,
+		color: "yellow",
+	},
+	{
+		id: 9,
+		label: "Nível Combustível",
+		value: "100",
+		unit: "%",
+		icon: Fuel,
+		color: "blue",
+	},
+	{
+		id: 10,
+		label: "Falha Ativa",
+		value: "0",
+		unit: "",
+		icon: TriangleAlert,
+		color: "orange",
 	},
 	
 ];
@@ -83,7 +99,7 @@ const infoPayload01 = [
 ];
 
 const infoPayload02 = [
-	
+
 ];
 
 const examplePayload01 = [
@@ -186,35 +202,18 @@ const examplePayload03 = [
 ];
 
 export default function GeneratorView() {
-	return (<>
-		      {/* ── General Info Row ── */}
+	return (<div className="relative max-w-7xl mx-auto px-4 py-6 space-y-5">
+		{/* Header */}
+		<Header />
+
+		{/* ── General Info Row ── */}
 		<div className="px-5 pt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
 			{payloadX.map((metric, index) => (
 				<MetricCard key={index} {...metric} />
 			))}
 		</div>
 
-		<div className="px-5 grid grid-cols-2 gap-3">
-			{MetricContainer({
-				icon: Cpu,
-				containerLabel: "Informações Gerais",
-				badgeLabel: "I",
-				cols: 2,
-				color: "red",
-				useCard: false,
-				payload: infoPayload01,
-			})}
-			{MetricContainer({
-				icon: Cpu,
-				containerLabel: "",
-				badgeLabel: "II",
-				cols: 2,
-				color: "red",
-				useCard: false,
-				payload: infoPayload02,
-			})}
-		</div>
-
+		{/* Metric Data, Current, Power, Voltage */}
 		<div className="px-5 grid grid-cols-3 gap-3">
 			{MetricContainer({
 				icon: Activity,
@@ -240,6 +239,28 @@ export default function GeneratorView() {
 				payload: examplePayload03,
 			})}
 		</div>
-		</>
+
+		{/* Temp */}
+		<div className="px-5 grid grid-cols-2 gap-3">
+			{MetricContainer({
+				icon: Cpu,
+				containerLabel: "Informações Gerais",
+				badgeLabel: "I",
+				cols: 2,
+				color: "red",
+				useCard: false,
+				payload: infoPayload01,
+			})}
+			{MetricContainer({
+				icon: ChartNetwork,
+				containerLabel: "Unifilar",
+				badgeLabel: "II",
+				cols: 2,
+				color: "red",
+				useCard: false,
+				payload: infoPayload02,
+			})}
+		</div>
+	</div>	
 	);
 }
