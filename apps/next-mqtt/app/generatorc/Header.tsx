@@ -18,7 +18,7 @@ export default function GeneratorHeader() {
 		<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-7 px-5">
 			<div className="flex items-center gap-4">
 				<div className="relative">
-					<div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+					<div className="w-12 h-12 rounded-2xl bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
 						<Cpu size={22} className="text-white" />
 					</div>
 					{deviceOn && (
@@ -48,10 +48,10 @@ export default function GeneratorHeader() {
 						</span>
 						<span className="mx-2 text-slate-600">•</span>
 						<span className="text-slate-500">
-							Tópico MQTT:
+							Controlador:
 						</span>{" "}
 						<span className="font-mono text-slate-300 text-xs">
-							up/99XX00YY77
+							PCC3300
 						</span>
 					</p>
 				</div>
