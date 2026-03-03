@@ -44,7 +44,7 @@ export default function AlertDefault({ props: { title, description, variant } })
 
   };
   return (
-    <div className="relative rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-3 animate-fade-in">
+    <div className="mx-5 relative rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-3 animate-fade-in">
       <Icon d={Icons.bell} size={16} className={`mt-0.5 shrink-0 ${variantStyles[variant]}`} />
       <div className="flex-1">
         <p className={`text-sm font-medium ${variantStyles[variant]}`}>{title}</p>
