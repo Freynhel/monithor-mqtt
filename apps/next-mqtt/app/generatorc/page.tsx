@@ -4,6 +4,7 @@ import MetricContainer from "@/components/metrics/MetricContainer";
 import MetricCard from "@/components/metrics/MetricCard";
 import Header from "./Header";
 import { Activity, Zap, ChartColumn, Info, Cpu, Check, Gauge, BatteryCharging, ThermometerSnowflake, Wifi, Fuel, WavesArrowDown, Waves, Power, SquareArrowRight, TriangleAlert, ChartNetwork } from "lucide-react";
+import Alert from "@/components/ui/alert";
 
 const payload = {
 	"metrics": [
@@ -72,11 +73,13 @@ const payload = {
 	],
 }
 
-
 export default function GeneratorView() {
 	return (<div className="relative max-w-7xl mx-auto px-4 py-6 space-y-5">
 		{/* Header */}
 		<Header />
+
+		{/* Notifications */}
+		
 
 		{/* ── General Info Row ── */}
 		<div className="px-5 pt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
