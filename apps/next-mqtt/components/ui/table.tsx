@@ -8,6 +8,7 @@ import { Button } from "./button"
 import { useState } from "react"
 import DataTable from "../datatable/DataTable"
 import { Badge } from "./badge"
+import { alarmColumns, PCC3300Columns } from "../datatable/tableHeaders";
 
 // Mock data for demonstration
 const alarmData = [
@@ -17,32 +18,16 @@ const alarmData = [
   { id: "ALM-004", type: "Comm Timeout", severity: "info", timestamp: "2025-02-23 09:44:22", value: "—", status: "resolved" },
   { id: "ALM-005", type: "Power Surge", severity: "critical", timestamp: "2025-02-22 23:11:03", value: "+12%", status: "resolved" },
 ];
-const alarmColumns = [
-  { header: "ID", accessorKey: "id" },
-  { header: "Type", accessorKey: "type" },
-  { header: "Severity", accessorKey: "severity" },
-  { header: "Timestamp", accessorKey: "timestamp" },
-  { header: "Value", accessorKey: "value" },
-  { header: "Status", accessorKey: "status" },
-  { header: "Action", accessorKey: "action" },
-]
 
 const historyData = [
-  { ts: "14:30", voltage: "230.1V", current: "12.4A", power: "2853W", pf: "0.97", temp: "61°C" },
-  { ts: "14:00", voltage: "229.8V", current: "11.9A", power: "2735W", pf: "0.96", temp: "59°C" },
-  { ts: "13:30", voltage: "231.2V", current: "13.1A", power: "3028W", pf: "0.98", temp: "63°C" },
-  { ts: "13:00", voltage: "228.5V", current: "10.8A", power: "2468W", pf: "0.95", temp: "57°C" },
-  { ts: "12:30", voltage: "230.0V", current: "12.0A", power: "2760W", pf: "0.97", temp: "60°C" },
-  { ts: "12:00", voltage: "229.3V", current: "11.5A", power: "2636W", pf: "0.96", temp: "58°C" },
+  { ts: "14:32:11", status: "active", operation: "Manual", hourmeter: 1234, rotations: 1500, starts: 45, temp: 85, oilpressure: 5.2, battery: 12.6, an: 127, bn: 128, cn: 123, ab: 221, bc: 223, ca: 217, a: 15.2, b: 14.8, c: 16.5, active: 8.2, reactive: 3.1, apparent: 8.8, pf: 0.93 },
+  { ts: "13:15:04", status: "active", operation: "Auto", hourmeter: 1230, rotations: 1480, starts: 44, temp: 80, oilpressure: 5.5, battery: 12.7, an: 126, bn: 127, cn: 122, ab: 220, bc: 222, ca: 216, a: 14.8, b: 14.5, c: 16.0, active: 7.8, reactive: 2.9, apparent: 8.3, pf: 0.94 },
+  { ts: "11:08:57", status: "acknowledged", operation: "Manual", hourmeter: 1220, rotations: 1450, starts: 43, temp: 78, oilpressure: 5.8, battery: 12.8, an: 125, bn: 126, cn: 121, ab: 219, bc: 221, ca: 215, a: 14.5, b: 14.2, c: 15.8, active: 7.5, reactive: 2.7, apparent: 8.0, pf: 0.95 },
+  { ts: "09:44:22", status: "resolved", operation: "Auto", hourmeter: 1200, rotations: 1400, starts: 40, temp: 75, oilpressure: 6.0, battery: 12.9, an: 124, bn: 125, cn: 120, ab: 218, bc: 220, ca: 214, a: 14.2, b: 14.0, c: 15.5, active: 7.0, reactive: 2.5, apparent: 7.5, pf: 0.96 },
+  { ts: "23:11:03", status: "resolved", operation: "Manual", hourmeter: 1180, rotations: 1350, starts: 38, temp: 70, oilpressure: 6.5, battery: 13.0, an: 123, bn: 124, cn: 119, ab: 217, bc: 219, ca: 213, a: 14.0, b: 13.8, c: 15.2, active: 6.5, reactive: 2.3, apparent: 7.0, pf: 0.97 },
+  { ts: "21:45:30", status: "active", operation: "Auto", hourmeter: 1150, rotations: 1300, starts: 35, temp: 68, oilpressure: 6.8, battery: 13.1, an: 122, bn: 123, cn: 118, ab: 216, bc: 218, ca: 212, a: 13.8, b: 13.5, c: 15.0, active: 6.0, reactive: 2.0, apparent: 6.5, pf: 0.98 },
+  { ts: "20:30:15", status: "acknowledged", operation: "Manual", hourmeter: 1100, rotations: 1250, starts: 30, temp: 65, oilpressure: 7.0, battery: 13.2, an: 121, bn: 122, cn: 117, ab: 215, bc: 217, ca: 211, a: 13.5, b: 13.2, c: 14.8, active: 5.5, reactive: 1.8, apparent: 6.0, pf: 0.99 },
 ];
-const historyColumns = [
-  { header: "Timestamp", accessorKey: "ts" },
-  { header: "Voltage", accessorKey: "voltage" },
-  { header: "Current", accessorKey: "current" },
-  { header: "Power", accessorKey: "power" },
-  { header: "Power Factor", accessorKey: "pf" },
-  { header: "Temperature", accessorKey: "temp" },
-]
 
 const Icons = {
   power: "M12 2v10M4.93 4.93A10 10 0 1 0 19.07 4.93",
@@ -84,11 +69,18 @@ const Icon = ({ d, size = 16, className }) => (
   );
 }; */
 
-export default function TableDefault({ props: { columns, data, ...props } }) {
+export default function TableDefault({ props: { data, ...props } }) {
   const severityBadge = (s) => ({ critical: "destructive", warning: "warning", info: "default" })[s] || "secondary";
   const statusBadge = (s) => ({ active: "destructive", acknowledged: "warning", resolved: "success" })[s] || "secondary";
 
   const [activeTab, setActiveTab] = useState("alarms");
+
+  const generatorColumns = () => {
+    // need to return different columns depending on the current generator
+    if (activeTab === "history") {
+      return PCC3300Columns;
+    }
+  }
 
   return (
 
@@ -159,7 +151,7 @@ export default function TableDefault({ props: { columns, data, ...props } }) {
         <div className="overflow-x-auto">
           <DataTable
             props={{
-              columns: historyColumns,
+              columns: generatorColumns(),
               data: historyData,
 
             }}
