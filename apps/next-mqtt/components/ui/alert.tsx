@@ -32,7 +32,7 @@ const Icon = ({ d, size = 16, className }) => (
   </svg>
 );
 
-export default function AlertDefault({ props: { title, description, variant } }) {
+export default function Alert({ props: { title, description, variant } }) {
   const [notification, setNotification] = useState(true);
   const variantStyles = {
     error: "border-red-500/30 text-red-300",
@@ -57,7 +57,7 @@ export default function AlertDefault({ props: { title, description, variant } })
   )
 }
 
-function Alert({
+function AlertDefault({
   className,
   variant,
   ...props
@@ -101,4 +101,4 @@ function AlertDescription({
   )
 }
 
-export { Alert, AlertTitle, AlertDescription }
+export { AlertDefault, AlertTitle, AlertDescription }

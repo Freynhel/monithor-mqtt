@@ -5,7 +5,6 @@ import MetricCard from "@/components/metrics/MetricCard";
 import Header from "./Header";
 import { Activity, Zap, ChartColumn, Info, Cpu, Check, Gauge, BatteryCharging, ThermometerSnowflake, Wifi, Fuel, WavesArrowDown, Waves, Power, SquareArrowRight, TriangleAlert, ChartNetwork } from "lucide-react";
 import AlertDefault from "@/components/ui/alert";
-import DataTable from "@/components/datatable/DataTable";
 import DataTable2 from "@/components/ui/table";
 import { useEffect } from "react";
 
@@ -105,7 +104,6 @@ export default function GeneratorView() {
 				description: "Voltage reading of 248.3V exceeded threshold (245V) on channel A. Alarm ALM-001 triggered at 14:32:11.",
 				variant: "alert"
 			}} />
-
 		{/* ── General Info Row ── */}
 		<div className="px-5 pt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
 			{payload.metrics.map((metric, index) => (
@@ -192,7 +190,7 @@ export default function GeneratorView() {
 		{/* Tabela */}
 		{/* <DataTable props={{ columns: alertsColumns, data: alertsPayload }} /> */}
 		<DataTable2 props={{ columns: alertsColumns, data: alertsPayload }} />
-		
+
 	</div>
 	);
 }
