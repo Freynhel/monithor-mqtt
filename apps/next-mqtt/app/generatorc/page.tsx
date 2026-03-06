@@ -4,19 +4,23 @@ import MetricContainer from "@/components/metrics/MetricContainer";
 import MetricCard from "@/components/metrics/MetricCard";
 import Header from "./Header";
 import { Activity, Zap, ChartColumn, Info, Cpu, Check, Gauge, BatteryCharging, ThermometerSnowflake, Wifi, Fuel, WavesArrowDown, Waves, Power, SquareArrowRight, TriangleAlert, ChartNetwork } from "lucide-react";
+import AlertDefault from "@/components/ui/alert";
+import DataTable from "@/components/datatable/DataTable";
+import DataTable2 from "@/components/ui/table";
+import { useEffect } from "react";
 
 const payload = {
 	"metrics": [
-		{ id: 1, label: "Funcionamento", value: "4.820", unit: "h", icon: Activity, color: "teal",},
-		{ id: 2, label: "Partidas", value: "660", unit: "", icon: Power, color: "pink",},
-		{ id: 3, label: "Temp. Refrig.", value: "52.0", unit: "°C", icon: ThermometerSnowflake, color: "yellow",},
-		{ id: 4, label: "Pressão Óleo", value: "8,4", unit: "KPA", icon: WavesArrowDown, color: "blue",},
-		{ id: 5, label: "Modo de Operação", value: "Auto", unit: "", icon: SquareArrowRight, color: "orange",},
-		{ id: 6, label: "Rotação", value: "1.740", unit: "rpm", icon: Gauge, color: "teal",},
-		{ id: 7, label: "Frequência", value: "60,0", unit: "Hz", icon: Wifi, color: "pink",},
-		{ id: 8, label: "Tensão Bateria", value: "27", unit: "Vcc", icon: BatteryCharging, color: "yellow",},
-		{ id: 9, label: "Nível Combustível", value: "100", unit: "%", icon: Fuel, color: "blue",},
-		{ id: 10, label: "Falha Ativa", value: "0", unit: "", icon: TriangleAlert, color: "orange",},
+		{ id: 1, label: "Funcionamento", value: "4.820", unit: "h", icon: Activity, color: "teal", },
+		{ id: 2, label: "Partidas", value: "660", unit: "", icon: Power, color: "pink", },
+		{ id: 3, label: "Temp. Refrig.", value: "52.0", unit: "°C", icon: ThermometerSnowflake, color: "yellow", },
+		{ id: 4, label: "Pressão Óleo", value: "8,4", unit: "KPA", icon: WavesArrowDown, color: "blue", },
+		{ id: 5, label: "Modo de Operação", value: "Auto", unit: "", icon: SquareArrowRight, color: "orange", },
+		{ id: 6, label: "Rotação", value: "1.740", unit: "rpm", icon: Gauge, color: "teal", },
+		{ id: 7, label: "Frequência", value: "60,0", unit: "Hz", icon: Wifi, color: "pink", },
+		{ id: 8, label: "Tensão Bateria", value: "27", unit: "Vcc", icon: BatteryCharging, color: "yellow", },
+		{ id: 9, label: "Nível Combustível", value: "100", unit: "%", icon: Fuel, color: "blue", },
+		{ id: 10, label: "Falha Ativa", value: "0", unit: "", icon: TriangleAlert, color: "orange", },
 	],
 	"generalInfo": [
 		["Número de Série", "SN1234567890"],
@@ -71,12 +75,36 @@ const payload = {
 
 	],
 }
+const alertsPayload = [
+	{ id: 1, title: "Overvoltage Detected", description: "Voltage reading of 248.3V exceeded threshold (245V) on channel A. Alarm ALM-001 triggered at 14:32:11.", severity: "critical", status: "active" },
+	{ id: 2, title: "High Temperature", description: "Temperature reading of 85.6°C exceeded threshold (80°C) on engine coolant. Alarm ALM-002 triggered at 14:35:22.", severity: "warning", status: "acknowledged" },
+	{ id: 3, title: "Low Oil Pressure", description: "Oil pressure reading of 5.2 KPA dropped below threshold (10 KPA) on channel B. Alarm ALM-003 triggered at 14:40:05.", severity: "critical", status: "active" },
+	{ id: 4, title: "Sensor Failure", description: "Sensor SNR-01 failed to respond for 30 seconds. Alarm ALM-004 triggered at 14:45:10.", severity: "info", status: "resolved" },
+	{ id: 5, title: "Power Supply Issue", description: "Voltage fluctuation detected in power supply. Alarm ALM-005 triggered at 14:50:30.", severity: "warning", status: "active" },
+]
+const alertsColumns = [
+	{ header: "ID", accessorKey: "id" },
+	{ header: "Title", accessorKey: "title" },
+	{ header: "Severity", accessorKey: "severity" },
+	{ header: "Timestamp", accessorKey: "timestamp" },
+	{ header: "Value", accessorKey: "value" },
+]
 
 
 export default function GeneratorView() {
+	useEffect(() => {
+		// usar para receber dados e atualizar o estado do componente 
+		// E.G. os dados das tabelas de histórico de alertas
+	}, []);
 	return (<div className="relative max-w-7xl mx-auto px-4 py-6 space-y-5">
 		{/* Header */}
 		<Header />
+		<AlertDefault
+			props={{
+				title: "Active Alert — Overvoltage Detected",
+				description: "Voltage reading of 248.3V exceeded threshold (245V) on channel A. Alarm ALM-001 triggered at 14:32:11.",
+				variant: "alert"
+			}} />
 
 		{/* ── General Info Row ── */}
 		<div className="px-5 pt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
@@ -84,7 +112,7 @@ export default function GeneratorView() {
 				<MetricCard key={index} {...metric} />
 			))}
 		</div>
-		
+
 		{/* Metric Data, Current, Power, Voltage */}
 		<div className="px-5 grid grid-cols-1 lg:grid-cols-3 gap-3">
 			{MetricContainer({
@@ -94,7 +122,7 @@ export default function GeneratorView() {
 				color: "cyan",
 				payload: payload.generatorCurrent,
 			})}
-			
+
 			{MetricContainer({
 				icon: Activity,
 				containerLabel: "Correntes",
@@ -162,7 +190,9 @@ export default function GeneratorView() {
 		</div>
 
 		{/* Tabela */}
+		{/* <DataTable props={{ columns: alertsColumns, data: alertsPayload }} /> */}
+		<DataTable2 props={{ columns: alertsColumns, data: alertsPayload }} />
 		
-	</div>	
+	</div>
 	);
 }

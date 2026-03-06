@@ -4,7 +4,7 @@ import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
-const badgeVariants = cva(
+/* const badgeVariants = cva(
   "inline-flex items-center justify-center rounded-full border border-transparent px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
   {
     variants: {
@@ -24,9 +24,24 @@ const badgeVariants = cva(
       variant: "default",
     },
   }
-)
+) */
 
-function Badge({
+ function Badge({ children, variant = "default", className }) {
+  const variants = {
+    default: "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30",
+    destructive: "bg-red-500/20 text-red-400 border border-red-500/30",
+    warning: "bg-amber-500/20 text-amber-400 border border-amber-500/30",
+    success: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30",
+    secondary: "bg-slate-700/60 text-slate-300 border border-slate-600/40",
+  };
+  return (
+    <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", variants[variant], className)}>
+      {children}
+    </span>
+  );
+}; 
+
+/* function Badge2({
   className,
   variant = "default",
   asChild = false,
@@ -43,6 +58,8 @@ function Badge({
       {...props}
     />
   )
-}
+} */
 
-export { Badge, badgeVariants }
+
+
+export { Badge, /* badgeVariants */ }
