@@ -94,7 +94,18 @@ export default function GeneratorView() {
 	useEffect(() => {
 		// usar para receber dados e atualizar o estado do componente 
 		// E.G. os dados das tabelas de histórico de alertas
+		const fetchData = async () => {
+			try {
+				const response = await fetch("http://localhost:3001/generators/70/dashboard");
+				const data = await response.json();
+				console.log("Fetched data:", data);
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			}
+		}
+		fetchData();
 	}, []);
+
 	return (<div className="relative max-w-7xl mx-auto px-4 py-6 space-y-5">
 		{/* Header */}
 		<Header />
