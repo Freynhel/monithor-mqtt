@@ -1,5 +1,6 @@
+// apps/elysia-mqtt/src/modules/generator/index.ts
+//
 // Controller – Generator module
-// Replaces the placeholder Todo controller in this folder.
 
 import { Elysia, t } from "elysia";
 import { GeneratorService } from "./service";
@@ -46,6 +47,7 @@ export const generatorController = new Elysia({ prefix: "/generators" })
 	)
 
 	// ── GET /generators/:id/alarms?limit=50 ───────────────────────────────────
+	// Fetches alarm history from [Modbus].[Alarm]. Active alarms have Exit = NULL.
 	.get(
 		"/:id/alarms",
 		({ params: { id }, query: { limit } }: { params: { id: number }; query: { limit?: number } }) =>
@@ -54,6 +56,22 @@ export const generatorController = new Elysia({ prefix: "/generators" })
 			params: t.Object({ id: t.Numeric() }),
 			query: t.Object({ limit: t.Optional(t.Numeric()) }),
 			detail: { summary: "List recent alarms for a generator" },
+		},
+	)
+
+	// ── GET /generators/:id/history?limit=30 ──────────────────────────────────
+	// Returns recent historical telemetry rows from the appropriate Modbus view,
+	// automatically selecting the correct view based on the generator's device type.
+	// Intended for the history table on the dashboard (NOT for live telemetry —
+	// that comes from MQTT over WebSocket).
+	.get(
+		"/:id/history",
+		({ params: { id }, query: { limit } }: { params: { id: number }; query: { limit?: number } }) =>
+			GeneratorService.getHistory(id, limit),
+		{
+			params: t.Object({ id: t.Numeric() }),
+			query: t.Object({ limit: t.Optional(t.Numeric()) }),
+			detail: { summary: "Get historical telemetry rows for a generator" },
 		},
 	)
 

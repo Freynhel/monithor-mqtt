@@ -1,58 +1,5 @@
 // DTO / schemas
 
-/* Generator table:
-
-USE [MotormacNext]
-GO
-
-Object:  Table [dbo].[Generator]
-
-CREATE TABLE [dbo].[Generator](
-	[GeneratorID] [int] IDENTITY(1,1) NOT NULL,
-	[ModelID] [int] NULL,
-	[Name] [varchar](99) NULL,
-	[Address] [varchar](150) NULL,
-	[Year] [smallint] NULL,
-	[ClientCompanyID] [int] NULL,
-	[Status] [varchar](20) NULL,
-	[DefaultType] [varchar](20) NULL,
-	[HasMonithor] [bit] NULL,
-	[RemoteControl] [bit] NULL,
-	[SerialNumber] [varchar](70) NULL,
-	[Mode] [varchar](20) NULL,
-	[TankSize] [decimal](8, 2) NULL,
-	[State] [varchar](2) NULL,
-	[Latitude] [decimal](9, 6) NULL,
-	[Longitude] [decimal](9, 6) NULL,
-	[ContactName] [varchar](99) NULL,
-	[ContactNumber] [varchar](20) NULL,
-	[ContactEmail] [varchar](200) NULL,
-	[Commissioning] [bit] NULL,
-	[TopicMQTT] [varchar](30) NULL,
-	[Active] [bit] NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[GeneratorID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 95, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-
-ALTER TABLE [dbo].[Generator]  WITH CHECK ADD  CONSTRAINT [FK_Generator_ClientCompany] FOREIGN KEY([ClientCompanyID])
-REFERENCES [dbo].[ClientCompany] ([ClientCompanyID])
-GO
-
-ALTER TABLE [dbo].[Generator] CHECK CONSTRAINT [FK_Generator_ClientCompany]
-GO
-
-ALTER TABLE [dbo].[Generator]  WITH CHECK ADD  CONSTRAINT [FK_Generator_Model] FOREIGN KEY([ModelID])
-REFERENCES [dbo].[Model] ([ModelID])
-GO
-
-ALTER TABLE [dbo].[Generator] CHECK CONSTRAINT [FK_Generator_Model]
-GO
-
-*/
-
 import { t } from "elysia";
 
 export const GeneratorModel = {

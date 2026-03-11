@@ -1,3 +1,5 @@
+// apps/elysia-mqtt/src/modules/generator/service.ts
+//
 // Business Logic – Generator module
 // Talks exclusively to SQL Server through the shared queryBuilder (qb).
 
@@ -99,28 +101,75 @@ export abstract class GeneratorService {
 
 		return {
 			metrics: [
-				{ id: 1,  key: "hourmeter",      label: "Funcionamento",    value: t.hourmeter   ?? "–", unit: "h",   color: "teal"   },
-				{ id: 2,  key: "starts",         label: "Partidas",         value: t.starts      ?? "–", unit: "",    color: "pink"   },
-				{ id: 3,  key: "temp",           label: "Temp. Refrig.",    value: t.temp        ?? "–", unit: "°C",  color: "yellow" },
-				{ id: 4,  key: "oilpressure",    label: "Pressão Óleo",     value: t.oilpressure ?? "–", unit: "KPA", color: "blue"   },
-				{ id: 5,  key: "operationMode",  label: "Modo de Operação", value: t.operationMode ?? "–", unit: "",  color: "orange" },
-				{ id: 6,  key: "rotations",      label: "Rotação",          value: t.rotations   ?? "–", unit: "rpm", color: "teal"  },
-				{ id: 7,  key: "frequency",      label: "Frequência",       value: t.frequency   ?? "–", unit: "Hz",  color: "pink"  },
-				{ id: 8,  key: "battery",        label: "Tensão Bateria",   value: t.battery     ?? "–", unit: "Vcc", color: "yellow"},
-				{ id: 9,  key: "fuelLevel",      label: "Nível Combustível",value: "–",                  unit: "%",   color: "blue"  },
-				{ id: 10, key: "activeFault",    label: "Falha Ativa",      value: t.activeFault ?? "0", unit: "",    color: "orange"},
+				{
+					id: 1,
+					key: "hourmeter",
+					label: "Funcionamento",
+					value: t.hourmeter ?? "–",
+					unit: "h",
+				},
+				{
+					id: 2,
+					key: "starts",
+					label: "Partidas",
+					value: t.starts ?? "–",
+					unit: "",
+				},
+				{
+					id: 3,
+					key: "temp",
+					label: "Temp. Refrig.",
+					value: t.temp ?? "–",
+					unit: "°C",
+				},
+				{
+					id: 4,
+					key: "oilpressure",
+					label: "Pressão Óleo",
+					value: t.oilpressure ?? "–",
+					unit: "KPA",
+				},
+				{
+					id: 5,
+					key: "operationMode",
+					label: "Modo de Operação",
+					value: t.operationMode ?? "–",
+					unit: "",
+				},
+				{
+					id: 6,
+					key: "rotations",
+					label: "Rotação",
+					value: t.rotations ?? "–",
+					unit: "rpm",
+				},
+				{
+					id: 7,
+					key: "battery",
+					label: "Tensão Bateria",
+					value: t.battery ?? "–",
+					unit: "Vcc",
+				},
+				{
+					id: 8,
+					key: "activeFault",
+					label: "Falha Ativa",
+					value: t.activeFault ?? "0",
+					unit: "",
+				},
 			],
-			generalInfo: [
-				["Número de Série",    g.SerialNumber   ?? "–"],
-				["Modelo",             g.ModelName      ?? "–"],
-				["Último Funcionamento", t.lastSeen     ?? "–"],
-				["Modo",               g.Mode           ?? "–"],
-				["Nome Contato",       g.ContactName    ?? "–"],
-				["Endereço",           g.Address        ?? "–"],
-				["Telefone Contato",   g.ContactNumber  ?? "–"],
-				["Email Contato",      g.ContactEmail   ?? "–"],
-			],
-			generatorCurrent: [          // voltages (AN/BN/CN/AB/BC/CA)
+			generalInfo: {
+				serialNumber: g.SerialNumber ?? null,
+				modelName: g.ModelName ?? null,
+				mode: g.Mode ?? null,
+				contactName: g.ContactName ?? null,
+				contactNumber: g.ContactNumber ?? null,
+				contactEmail: g.ContactEmail ?? null,
+				address: g.Address ?? null,
+				status: g.Status ?? null,
+				year: g.Year ?? null,
+			},
+			generatorCurrent: [
 				{ label: "AN", value: t.AN ?? "–", unit: "V" },
 				{ label: "BN", value: t.BN ?? "–", unit: "V" },
 				{ label: "CN", value: t.CN ?? "–", unit: "V" },
@@ -128,33 +177,117 @@ export abstract class GeneratorService {
 				{ label: "BC", value: t.BC ?? "–", unit: "V" },
 				{ label: "CA", value: t.CA ?? "–", unit: "V" },
 			],
-			generatorVoltage: [          // currents (A/B/C)
+			generatorVoltage: [
 				{ label: "Fase A", value: t.A ?? "–", unit: "A" },
 				{ label: "Fase B", value: t.B ?? "–", unit: "A" },
 				{ label: "Fase C", value: t.C ?? "–", unit: "A" },
 			],
 			generatorPower: [
-				{ label: "Aparente",  value: t.apparent ?? "–", unit: "kVA"  },
+				{ label: "Aparente", value: t.apparent ?? "–", unit: "kVA" },
 			],
 			status: {
-				gensetState:     t.gensetState     ?? null,
-				operationMode:   t.operationMode   ?? null,
+				gensetState: t.gensetState ?? null,
+				operationMode: t.operationMode ?? null,
 				activeFaultType: t.activeFaultType ?? null,
-				controllerType:  t.controllerType  ?? null,
-				lastSeen:        t.lastSeen        ?? null,
+				controllerType: t.controllerType ?? null,
+				lastSeen: t.lastSeen ?? null,
 			},
 		};
 	}
 
 	// ── Alarm list for a generator ────────────────────────────────────────────
+	//
+	// Fetches recent alarms from [Modbus].[Alarm] ordered by most recent first.
+	// `Exit` being NULL means the alarm is still active.
 
 	static getAlarms(generatorId: number, limit = 50) {
 		return qb.query<Record<string, unknown>>(
 			`SELECT TOP (@p1)
-				AlarmID, GeneratorID, [DateTime], Entrance, [Exit], Code, [Message]
+				AlarmID,
+				GeneratorID,
+				[DateTime],
+				Entrance,
+				[Exit],
+				Code,
+				[Message]
 			FROM [Modbus].[Alarm]
 			WHERE GeneratorID = @p0
 			ORDER BY [DateTime] DESC`,
+			[generatorId, limit],
+		);
+	}
+
+	// ── Historical telemetry for a generator ─────────────────────────────────
+	//
+	// Returns recent telemetry rows from [Modbus].[Vw_ModbusDataChart] for
+	// PCC1301/1302/PS500/PS600 devices, or from [Modbus].[Vw_ModbusDataChart_PCC3300]
+	// for PCC3300/PCC3300PTC-A devices, automatically selecting the correct view
+	// based on the device registered to this generator.
+	//
+	// Columns returned are normalised to a stable camelCase contract so the
+	// front-end does not need to know which underlying view was queried.
+
+	static async getHistory(generatorId: number, limit = 30) {
+		// 1. Resolve device type --------------------------------------------------
+		const [device] = await qb.query<{ DeviceType: string }>(
+			`SELECT TOP 1 DeviceType
+			 FROM [Modbus].[Device]
+			 WHERE GeneratorID = @p0
+			   AND Active = 1`,
+			[generatorId],
+		);
+
+		const deviceType = device?.DeviceType ?? "";
+
+		// 2. Query the appropriate view -------------------------------------------
+		const isPCC3300 =
+			deviceType === "PCC3300" || deviceType === "PCC3300PTC-A";
+
+		if (isPCC3300) {
+			return qb.query<Record<string, unknown>>(
+				`SELECT TOP (@p1)
+					ID,
+					[date]                         AS dateTime,
+					[Status do Grupo Gerador]      AS gensetState,
+					[Modo de Operação]             AS operationMode,
+					[Falha Ativa]                  AS activeFault,
+					hourmeter,
+					gen_phase_an                   AS AN,
+					gen_phase_bn                   AS BN,
+					gen_phase_cn                   AS CN,
+					gen_phase_a                    AS A,
+					gen_phase_b                    AS B,
+					gen_phase_c                    AS C,
+					gen_active                     AS genActive,
+					gen_reactive                   AS genReactive,
+					gen_apparent                   AS apparent,
+					gen_frequency                  AS frequency
+				 FROM [Modbus].[Vw_ModbusDataChart_PCC3300]
+				 WHERE GeneratorID = @p0
+				 ORDER BY [date] DESC`,
+				[generatorId, limit],
+			);
+		}
+
+		// Default: PCC1301 / PCC1302 / PS500 / PS600
+		return qb.query<Record<string, unknown>>(
+			`SELECT TOP (@p1)
+				ID,
+				[date]                         AS dateTime,
+				[Status do Grupo Gerador]      AS gensetState,
+				[Modo de Operação]             AS operationMode,
+				[Falha Ativa]                  AS activeFault,
+				hourmeter,
+				AN, BN, CN, AB, BC, CA,
+				A, B, C,
+				apparent,
+				rotations,
+				battery,
+				oilpressure,
+				temp
+			 FROM [Modbus].[Vw_ModbusDataChart]
+			 WHERE GeneratorID = @p0
+			 ORDER BY [date] DESC`,
 			[generatorId, limit],
 		);
 	}
