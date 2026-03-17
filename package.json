@@ -17,7 +17,6 @@
 	},
 	"dependencies": {
 		"@elysiajs/cors": "^1.4.1",
-		"@tanstack/react-table": "^8.21.3",
 		"mqtt": "^5.15.0"
 	}
 }
