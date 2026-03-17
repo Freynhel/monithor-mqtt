@@ -412,7 +412,7 @@ export default function GeneratorView() {
 				setDbLoading(true);
 				setDbError(null);
 
-				const [genRes, alarmsRes, histRes] = await Promise.all([
+				const [genRes, alarmsRes, /*histRes*/] = await Promise.all([
 					fetch(`${API_BASE}/generators/${GENERATOR_ID}`),
 					fetch(
 						`${API_BASE}/generators/${GENERATOR_ID}/alarms?limit=50`,
@@ -426,10 +426,10 @@ export default function GeneratorView() {
 					throw new Error(`Alarms fetch failed: ${alarmsRes.status}`);
 				// if (!histRes.ok)   throw new Error(`History fetch failed: ${histRes.status}`);
 
-				const [gen, alarmsData /*histData*/]: [
+				const [gen, alarmsData, /*histData*/]: [
 					GeneratorInfo,
-					AlarmRow[],
-					HistoryRow[],
+					AlarmRow[], 
+					// HistoryRow[],
 				] = await Promise.all([
 					genRes.json(),
 					alarmsRes.json() /*histRes.json()*/,
@@ -545,7 +545,7 @@ export default function GeneratorView() {
 			{/* ── Metric cards row ─────────────────────────────────────────── */}
 			<div className="px-5 pt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
 				{payload.metrics.map((metric) => (
-					<MetricCard key={metric.id} {...metric} />
+					<MetricCard key={metric.id} {...metric} sub="" />
 				))}
 			</div>
 

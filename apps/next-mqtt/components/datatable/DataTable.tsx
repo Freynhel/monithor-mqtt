@@ -50,9 +50,9 @@ export default function DataTable({ props: { columns, data } }) {
                 if (column.accessorKey === "id") {
                   return <TableCell key={column.accessorKey} className="px-5 py-3 font-mono text-cyan-400">{value}</TableCell>;
                 } else if (column.accessorKey === "severity") {
-                  return <TableCell key={column.accessorKey} className="px-5 py-3"><Badge variant={severityBadge(value as string)}>{value}</Badge></TableCell>;
+                  return <TableCell key={column.accessorKey} className="px-5 py-3"><Badge className="" variant={severityBadge(value as string)}>{value}</Badge></TableCell>;
                 } else if (column.accessorKey === "status") {
-                  return <TableCell key={column.accessorKey} className="px-5 py-3"><Badge variant={statusBadge(value as string)}>{value}</Badge></TableCell>;
+                  return <TableCell key={column.accessorKey} className="px-5 py-3"><Badge className="" variant={statusBadge(value as string)}>{value}</Badge></TableCell>;
                 } else if (column.accessorKey === "action") {
                   return <TableCell key={column.accessorKey} className="px-5 py-3"><Button className="" variant="ghost" size="sm" onClick={() => alert(`Viewing ${row.id}`)}>View</Button></TableCell>;
                 } else if (column.accessorKey === "ts") {

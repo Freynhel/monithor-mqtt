@@ -2,7 +2,7 @@
 // temporary test page
 
 import { useState, useEffect } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertDefault, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // ─── Minimal Shadcn-style primitives (self-contained) ────────────────────────
 const cn = (...classes) => classes.filter(Boolean).join(" ");
@@ -344,7 +344,7 @@ export default function IoTDashboard() {
               {activeTab === "alarms" && (
                 <Badge className="" variant="destructive">{alarmData.filter(a => a.status === "active").length} active</Badge>
               )}
-              <Button className="" variant="ghost" size="sm">Export CSV</Button>
+              <Button onClick="" className="" variant="ghost" size="sm">Export CSV</Button>
             </div>
           </CardHeader>
 
@@ -406,8 +406,8 @@ export default function IoTDashboard() {
           <div className="px-5 py-3 border-t border-slate-800/40 flex items-center justify-between text-xs text-slate-500">
             <span>Showing {activeTab === "alarms" ? alarmData.length : historyData.length} records</span>
             <div className="flex gap-1">
-              <Button className="" variant="ghost" size="sm">← Prev</Button>
-              <Button className="" variant="ghost" size="sm">Next →</Button>
+              <Button onClick="" className="" variant="ghost" size="sm">← Prev</Button>
+              <Button onClick="" className="" variant="ghost" size="sm">Next →</Button>
             </div>
           </div>
         </Card>
