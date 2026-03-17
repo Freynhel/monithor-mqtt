@@ -1,19 +1,12 @@
 "use client";
 import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
- 
-import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,33 +33,13 @@ export default function DataTable({ props: { columns, data } }) {
   return (
     <div className="overflow-x-auto">
       <Table className="text-xs">
-        {/* <TableHeader>
+        <TableHeader>
           <TableRow className="border-b border-slate-800/60 hover:bg-transparent">
             {columns.map(h => (
               <TableHead key={h.header} className="px-5 py-3 text-left text-slate-500 font-medium uppercase tracking-wider">{h.header}</TableHead>
             ))}
           </TableRow>
-        </TableHeader> */}
-
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
         </TableHeader>
-
         <TableBody>
           {data.map((row, i) => (
             <TableRow key={row.id || i} className={cn("border-b border-slate-800/30 transition-colors hover:bg-slate-800/30", i % 2 === 0 ? "" : "bg-slate-900/30")}>
