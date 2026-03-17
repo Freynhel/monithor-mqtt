@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "elysia": "latest",
-    "mssql": "^12.2.0"
+    "mssql": "^12.2.0",
+    "@monithor-mqtt/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/mssql": "^9.1.9",
