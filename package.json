@@ -8,8 +8,8 @@
 	],
 	"scripts": {
 		"dev": "turbo run dev",
-		"dev:api": "turbo run dev --filter=elysia-mqtt",
-		"dev:web": "turbo run dev --filter=nextjs-mqtt"
+		"dev:api": "turbo run dev --filter=elysia-api",
+		"dev:web": "turbo run dev --filter=next-web"
 	},
 	"devDependencies": {
 		"@types/bun": "^1.3.9",

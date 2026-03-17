@@ -1,5 +1,3 @@
-// apps/elysia-mqtt/src/modules/generator/service.ts
-//
 // Business Logic – Generator module
 // Talks exclusively to SQL Server through the shared queryBuilder (qb).
 

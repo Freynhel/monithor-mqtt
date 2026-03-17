@@ -1,5 +1,3 @@
-// apps/elysia-mqtt/src/modules/generator/index.ts
-//
 // Controller – Generator module
 
 import { Elysia, t } from "elysia";

@@ -1,8 +1,6 @@
 "use client";
 
 /**
- * apps/next-mqtt/app/generatorc/page.tsx
- *
  * Generator C dashboard.
  *
  * Data sources
@@ -46,12 +44,12 @@ import DataTable2 from "@/components/ui/table";
 import {
 	useMqttTelemetry,
 	type MqttConnectionStatus,
-} from "./../../hooks/useMqttTelemetry";
+} from "../../hooks/useMqttTelemetry";
 import {
 	operationModeLabel,
 	gensetStateLabel,
 	type NormalizedTelemetry,
-} from "./../../lib/mqttNormalizer";
+} from "../../lib/mqttNormalizer";
 
 // ─── Configuration ────────────────────────────────────────────────────────────
 
