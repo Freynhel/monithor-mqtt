@@ -1,1 +1,1 @@
-export * from './types/controladores';
+export * from './types/devices';
