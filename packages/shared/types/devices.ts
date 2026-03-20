@@ -60,9 +60,9 @@
 		genset_state: Nullable<number>
 		active_fault: Nullable<number>
 		active_fault_type: Nullable<number>
-		battery_voltage: Nullable<string>
-		oil_pressure: Nullable<string>
-		coolant_temperature: Nullable<string>
+		battery_voltage: Nullable<number>
+		oil_pressure: Nullable<number>
+		coolant_temperature: Nullable<number>
 		rotation: Nullable<number>
 		starts: Nullable<number>
 		hourmeter_highbyte: Nullable<number>
@@ -97,8 +97,8 @@
 	export type PCC3300 = {
 		general: GeneralSection
 		alarm: AlarmSection
-		generator: GeneratorSection & { gen_frequency: Nullable<string> }
-		network: NetworkSection & { net_frequency: Nullable<string> }
+		generator: GeneratorSection & { gen_frequency: Nullable<number> }
+		network: NetworkSection & { net_frequency: Nullable<number> }
 	}
 
 /*-----------------------------------------------------------------------------*/

@@ -9,9 +9,9 @@ export function normalizePCC3300(dl: Record<string, number>): PCC3300 {
 			genset_state: dl.genset_state ?? null,
 			active_fault: dl.active_fault ?? null,
 			active_fault_type: dl.active_fault_type ?? null,
-			battery_voltage: toFixed(dl.battery_voltage ?? null, 1),
-			oil_pressure: toFixed(dl.oil_pressure ?? null, 1),
-			coolant_temperature: toFixed(dl.coolant_temperature ?? null, 1),
+			battery_voltage: dl.battery_voltage ?? null, //❗ toFixed(dl.battery_voltage, 1),
+			oil_pressure: dl.oil_pressure ?? null, //❗ toFixed(dl.oil_pressure, 1),
+			coolant_temperature: dl.coolant_temperature ?? null, //❗ toFixed(dl.coolant_temperature, 1),
 			rotation: dl.rotation ?? null,
 			starts: dl.starts ?? null,
 			hourmeter_highbyte: dl.hourmeter_highbyte ?? null,
@@ -38,7 +38,7 @@ export function normalizePCC3300(dl: Record<string, number>): PCC3300 {
 			net_reactive: dl.net_reactive ?? null,
 			net_apparent: dl.net_apparent ?? null,
 			net_factor: dl.net_factor ?? null,
-			net_frequency: toFixed(dl.net_frequency ?? null), // 6010 → 60.1 Hz
+			net_frequency: dl.net_frequency ?? null, //❗ toFixed(dl.net_frequency), // 6010 → 60.1 Hz
 		},
 
 		generator: {
@@ -55,7 +55,7 @@ export function normalizePCC3300(dl: Record<string, number>): PCC3300 {
 			gen_reactive: dl.gen_reactive ?? null,
 			gen_apparent: dl.gen_apparent ?? null,
 			gen_factor: dl.gen_factor ?? null,
-			gen_frequency: toFixed(dl.gen_frequency ?? null), // 6010 → 60.1 Hz
+			gen_frequency: dl.gen_frequency ?? null, //❗ toFixed(dl.gen_frequency), // 6010 → 60.1 Hz
 		},
 	}
 }
