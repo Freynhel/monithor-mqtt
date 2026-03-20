@@ -117,10 +117,10 @@
 			active_fault: Nullable<number>
 		}
 		generator: GeneratorSection & { 
-			gen_frequency: Nullable<string> 
+			gen_frequency: Nullable<number> 
 		}
 		network: NetworkSection & { 
-			net_frequency: Nullable<string> 
+			net_frequency: Nullable<number> 
 		}
 		unifilar: {
 			generator: Nullable<number>
