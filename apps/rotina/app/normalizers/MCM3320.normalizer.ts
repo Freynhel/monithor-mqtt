@@ -1,9 +1,9 @@
-import type { MCM3320 } from "@/app/types/devices";
+import type { MCM3320 } from "@monithor-mqtt/shared/types/devices";
 import { toFixed, toBinary16, calcHourmeter } from "@/lib/utils";
 
 export function normalizeMCM3320(dl: Record<string, number>): MCM3320 {
 	  return {
-			generator: {
+		generator: {
 			gen_status: dl.placeholder ?? null,
 			gen_phase_an: dl.placeholder ?? null,
 			gen_phase_bn: dl.placeholder ?? null,
@@ -43,8 +43,8 @@ export function normalizeMCM3320(dl: Record<string, number>): MCM3320 {
 			cgr: dl.placeholder ?? null,
 			crd: dl.placeholder ?? null,
 		},
-		other: {
-			number_gensets: dl.placeholder ?? null,
+		general: {
+			number_gensets: dl.number_gensets ?? null,
 			system_capacity: dl.placeholder ?? null,
 			online_capacity: dl.placeholder ?? null,
 			operation_mode: dl.placeholder ?? null,

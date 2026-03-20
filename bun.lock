@@ -60,6 +60,7 @@
       "name": "rotina-mqtt",
       "version": "0.1.0",
       "dependencies": {
+        "@monithor-mqtt/shared": "workspace:*",
         "dotenv": "^17.2.3",
         "mqtt": "^5.14.1",
         "mssql": "^12.2.0",
