@@ -2,8 +2,8 @@ import "dotenv/config";
 import mqtt, { MqttClient } from "mqtt";
 import sql from "mssql";
 import { withDb as Connection, shutdown } from "@/lib/connection";
-import { normalizePCC1302, normalizePCC3300 } from "@/app/normalizers/index";
-import { formatDateLocaleBR } from "@/lib/utils";
+import { normalizePCC1302, normalizePCC3300, normalizeMCM3320 } from "@/app/normalizers/index";
+import { formatDateLocaleBR } from "@monithor-mqtt/shared/lib/normalizerUtils";
 import { alarmsRoutine, alarmLock } from "./process/alarms";
 
 /*-----------------------------------------------------------------------------*/
@@ -23,6 +23,7 @@ const normalizers: Record<string, (dl: Record<string, number>) => any> = {
 	PCC1301: normalizePCC1302,
 	PCC1302: normalizePCC1302,
 	PCC3300: normalizePCC3300,
+	MCM3320: normalizeMCM3320,
 };
 
 /*-----------------------------------------------------------------------------*/
@@ -42,11 +43,11 @@ async function fetchTopics(): Promise<Record<number, string>> {
 		const result = await pool
 			.request()
 			.query(`
-        SELECT GeneratorID, TopicMQTT
-        FROM [dbo].[Generator]
-        WHERE TopicMQTT IS NOT NULL
-          AND ACTIVE = 1
-      `);
+				SELECT GeneratorID, TopicMQTT
+				FROM [dbo].[Generator]
+				WHERE TopicMQTT IS NOT NULL
+				AND ACTIVE = 1
+			`);
 
 		for (const row of result.recordset) {
 			topics[row.GeneratorID] = row.TopicMQTT;
@@ -198,10 +199,10 @@ async function insertAction(
 				.input("dateTime", sql.DateTime, new Date(dateTime + "Z"))
 				.input("jsonData", sql.VarChar(2048), payloadString)
 				.query(`
-          INSERT INTO [Modbus].[Data]
-          (GeneratorID, DateTime, JSONData)
-          VALUES (@generatorId, @dateTime, @jsonData)
-        `);
+					INSERT INTO [Modbus].[Data]
+					(GeneratorID, DateTime, JSONData)
+					VALUES (@generatorId, @dateTime, @jsonData)
+				`);
 		});
 
 		console.log(`✅ ${logInfo} Dados inseridos no SQL Server`);
@@ -211,7 +212,7 @@ async function insertAction(
 }
 
 /*-----------------------------------------------------------------------------*/
-/* 🛑 Graceful Shutdown
+/* 🛑 Shutdown
 /*-----------------------------------------------------------------------------*/
 
 process.on("SIGINT", async () => {

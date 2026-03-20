@@ -1,5 +1,5 @@
 import type { PCC1302 } from "@monithor-mqtt/shared/types/devices";
-import { toFixed, toBinary16, calcHourmeter } from "@/lib/utils";
+import { toFixed, toBinary16, calcHourmeter } from "@monithor-mqtt/shared/lib/normalizerUtils";
 
 export function normalizePCC1302(dl: Record<string, number>): PCC1302 {
 	return {

@@ -1,5 +1,5 @@
 import type { MCM3320 } from "@monithor-mqtt/shared/types/devices";
-import { toFixed, toBinary16, calcHourmeter } from "@/lib/utils";
+import { toFixed, toBinary16, calcHourmeter } from "@monithor-mqtt/shared/lib/normalizerUtils";
 
 export function normalizeMCM3320(dl: Record<string, number>): MCM3320 {
 	  return {
