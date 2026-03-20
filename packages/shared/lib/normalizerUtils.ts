@@ -1,4 +1,6 @@
-
+/**
+ * This function needs reviewing. Since it's expecting to receive a number and it's returning a string.
+ */
 export function toFixed(value?: number | null, divider: number = 10, decimals: number = 1): string | null {
 	if (value == null) return null;
 	return (value / divider).toFixed(decimals);

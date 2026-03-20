@@ -33,7 +33,7 @@
 		reactive:  Nullable<number>
 		factor:    Nullable<number>
 		apparent:  Nullable<number>
-	};
+	}
 
 	type ElectricalMeasurements = PhaseVoltages & PhaseCurrents & PowerMetrics
 

@@ -4,7 +4,7 @@ import { toFixed, toBinary16, calcHourmeter } from "@monithor-mqtt/shared/lib/no
 export function normalizePCC3300(dl: Record<string, number>): PCC3300 {
 	return {
 		general: {
-			controller_type: null, // ❓ não recebido
+			controller_type: dl.controller_type ?? null,
 			switch_position: dl.switch_position ?? null,
 			genset_state: dl.genset_state ?? null,
 			active_fault: dl.active_fault ?? null,
@@ -34,9 +34,9 @@ export function normalizePCC3300(dl: Record<string, number>): PCC3300 {
 			net_phase_a: dl.net_phase_a ?? null,
 			net_phase_b: dl.net_phase_b ?? null,
 			net_phase_c: dl.net_phase_c ?? null,
-			net_active: null,  // ❓ não recebido
-			net_reactive:null,  // ❓ não recebido
-			net_apparent: null,  // ❓ não recebido
+			net_active: dl.net_active ?? null,
+			net_reactive: dl.net_reactive ?? null,
+			net_apparent: dl.net_apparent ?? null,
 			net_factor: dl.net_factor ?? null,
 			net_frequency: toFixed(dl.net_frequency ?? null), // 6010 → 60.1 Hz
 		},
@@ -51,11 +51,11 @@ export function normalizePCC3300(dl: Record<string, number>): PCC3300 {
 			gen_phase_a: dl.gen_phase_a ?? null,
 			gen_phase_b: dl.gen_phase_b ?? null,	
 			gen_phase_c: dl.gen_phase_c ?? null,
-			gen_active: null,   // ❓ não recebido
-			gen_reactive: null, // ❓ não recebido
-			gen_apparent: null, // ❓ não recebido
+			gen_active: dl.gen_active ?? null,
+			gen_reactive: dl.gen_reactive ?? null,
+			gen_apparent: dl.gen_apparent ?? null,
 			gen_factor: dl.gen_factor ?? null,
 			gen_frequency: toFixed(dl.gen_frequency ?? null), // 6010 → 60.1 Hz
 		},
-	};
+	}
 }
