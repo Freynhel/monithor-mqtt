@@ -256,7 +256,7 @@ export default function GeneratorView() {
 					icon:           Activity,
 					containerLabel: "Correntes",
 					badgeLabel:     "Gerador",
-					cols:           2,
+					cols:           3,
 					color:          "yellow",
 					payload:        payload.generatorCurrents,
 				})}
@@ -286,7 +286,7 @@ export default function GeneratorView() {
 						icon:           Network,
 						containerLabel: "Correntes",
 						badgeLabel:     "Rede",
-						cols:           2,
+						cols:           3,
 						color:          "indigo",
 						payload:        payload.networkCurrents,
 					})}
