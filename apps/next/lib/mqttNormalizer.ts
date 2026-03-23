@@ -1,238 +1,297 @@
 /**
  * lib/mqttNormalizer.ts
  *
- * Client-side mirror of the backend normalizers.
- * Converts raw MQTT register values (dl) into a unified, dashboard-ready
- * NormalizedTelemetry shape — no business logic divergence from the server.
+ * Client-side MQTT payload normalizer.
+ * Converts raw MQTT register values (dl) into typed telemetry objects
+ * aligned with the shared device types from @monithor-mqtt/shared.
  *
- * Add new device types by implementing a normalizer function and registering
- * it in the `normalizers` map at the bottom of this file.
+ * All values are kept as raw numbers — no formatting is applied here.
+ * Use displayConfig + format.ts for display concerns.
  */
 
-// ─── Unified telemetry shape ──────────────────────────────────────────────────
+import type { PCC1302, PCC3300, MCM3320 } from "@monithor-mqtt/shared/types/devices"
+import { calcHourmeter, toBinary16 } from "@monithor-mqtt/shared/lib/normalizerUtils"
 
-export type NormalizedTelemetry = {
-	// ── Identification ──────────────────────────────────────────────
-	deviceType: string;
-	timestamp: string | null;
+// ─── Telemetry Types ──────────────────────────────────────────────────────────
 
-	// ── General / controller ────────────────────────────────────────
-	controllerType: number | null;
-	/** Raw numeric mode: 0=Off 1=Auto 2=Manual 3=Teste */
-	operationMode: number | null;
-	/** Raw numeric state: 0=Parado 1=Pré-Inicialização 2=Subida 3=Em Funcionamento */
-	gensetState: number | null;
-	activeFault: number | null;
-	/** Raw numeric fault type: 0=Normal 1=Aviso 4=Desligamento */
-	activeFaultType: number | null;
-	battery: string | null;          // volts, pre-formatted
-	oilPressure: number | null;      // KPA
-	coolantTemp: string | null;      // °C, pre-formatted
-
-	// ── Engine ──────────────────────────────────────────────────────
-	rotation: number | null;         // RPM
-	starts: number | null;
-	hourmeter: number | null;        // hours
-
-	// ── Generator electrical ────────────────────────────────────────
-	genFrequency: string | null;     // Hz, pre-formatted
-	genPhaseAN: number | null;       // V
-	genPhaseBN: number | null;
-	genPhaseCN: number | null;
-	genPhaseAB: number | null;
-	genPhaseBC: number | null;
-	genPhaseCA: number | null;
-	genPhaseA: number | null;        // A
-	genPhaseB: number | null;
-	genPhaseC: number | null;
-	genActive: number | null;        // kW
-	genReactive: number | null;      // kVAR
-	genApparent: number | null;      // kVA
-	genFactor: number | null;        // power factor
-
-	// ── Network / utility (if device supports it) ───────────────────
-	netPhaseAN: number | null;
-	netPhaseBN: number | null;
-	netPhaseCN: number | null;
-	netPhaseAB: number | null;
-	netPhaseBC: number | null;
-	netPhaseCA: number | null;
-	netPhaseA: number | null;
-	netPhaseB: number | null;
-	netPhaseC: number | null;
-	netActive: number | null;
-	netReactive: number | null;
-	netApparent: number | null;
-	netFactor: number | null;
-	netFrequency: string | null;
-};
-
-// ─── Utility helpers (same logic as @/lib/utils in the backend) ───────────────
-
-/** Divides by 10 and formats to `decimals` decimal places. Returns null on bad input. */
-function toFixed(value: number | undefined | null, decimals = 1): string | null {
-	if (value == null || isNaN(value as number)) return null;
-	return ((value as number) / 10).toFixed(decimals);
+type TelemetryBase = {
+	timestamp: string | null
 }
 
-/** Calculates hourmeter from its two 16-bit halves. */
-function calcHourmeter(high?: number, low?: number): number | null {
-	if (high === undefined || low === undefined || high === null || low === null) return null;
-	return high * 65536 + low;
+export type PCC1302Telemetry = TelemetryBase & {
+	deviceType: "PCC1302" | "PCC1301" | "PS500" | "PS600"
+} & PCC1302
+
+export type PCC3300Telemetry = TelemetryBase & {
+	deviceType: "PCC3300" | "PCC3300PTC-A"
+} & PCC3300
+
+export type MCM3320Telemetry = TelemetryBase & {
+	deviceType: "MCM3320"
+} & MCM3320
+
+export type NormalizedTelemetry =
+	| PCC1302Telemetry
+	| PCC3300Telemetry
+	| MCM3320Telemetry
+
+// ─── Type Guards ──────────────────────────────────────────────────────────────
+
+export function isPCC1302(t: NormalizedTelemetry): t is PCC1302Telemetry {
+	return ["PCC1302", "PCC1301", "PS500", "PS600"].includes(t.deviceType)
 }
 
-// ─── Null-filled base object ──────────────────────────────────────────────────
+export function isPCC3300(t: NormalizedTelemetry): t is PCC3300Telemetry {
+	return ["PCC3300", "PCC3300PTC-A"].includes(t.deviceType)
+}
 
-function emptyTelemetry(deviceType: string, timestamp: string | null): NormalizedTelemetry {
+export function isMCM3320(t: NormalizedTelemetry): t is MCM3320Telemetry {
+	return t.deviceType === "MCM3320"
+}
+
+// ─── Internal Utilities ───────────────────────────────────────────────────────
+
+type DL = Record<string, number>
+
+/** Safe accessor — returns null if key is missing from dl */
+const get = (dl: DL) => (key: string) => dl[key] ?? null
+
+// ─── Normalizers ──────────────────────────────────────────────────────────────
+
+function normalizePCC1302Payload(
+	dl: DL,
+	deviceType: PCC1302Telemetry["deviceType"],
+	timestamp: string | null,
+): PCC1302Telemetry {
+	const g = get(dl)
 	return {
 		deviceType,
 		timestamp,
-		controllerType: null,
-		operationMode: null,
-		gensetState: null,
-		activeFault: null,
-		activeFaultType: null,
-		battery: null,
-		oilPressure: null,
-		coolantTemp: null,
-		rotation: null,
-		starts: null,
-		hourmeter: null,
-		genFrequency: null,
-		genPhaseAN: null, genPhaseBN: null, genPhaseCN: null,
-		genPhaseAB: null, genPhaseBC: null, genPhaseCA: null,
-		genPhaseA: null,  genPhaseB: null,  genPhaseC: null,
-		genActive: null, genReactive: null, genApparent: null, genFactor: null,
-		netPhaseAN: null, netPhaseBN: null, netPhaseCN: null,
-		netPhaseAB: null, netPhaseBC: null, netPhaseCA: null,
-		netPhaseA: null,  netPhaseB: null,  netPhaseC: null,
-		netActive: null, netReactive: null, netApparent: null,
-		netFactor: null, netFrequency: null,
-	};
+		general: {
+			controller_type:     g("controller_type"),
+			switch_position:     g("switch_position"),
+			genset_state:        g("genset_state"),
+			active_fault:        g("active_fault"),
+			active_fault_type:   g("active_fault_type"),
+			battery_voltage:     g("battery_voltage"),
+			oil_pressure:        g("oil_pressure"),
+			coolant_temperature: g("coolant_temperature"),
+			rotation:            g("rotation"),
+			starts:              g("starts"),
+			hourmeter_highbyte:  g("hourmeter_highbyte"),
+			hourmeter_lowbyte:   g("hourmeter_lowbyte"),
+			hourmeter:           calcHourmeter(dl.hourmeter_highbyte, dl.hourmeter_lowbyte),
+		},
+		alarm: {
+			fault_register:          toBinary16(dl.fault_register),
+			fault_register_extended: toBinary16(dl.fault_register_extended),
+		},
+		generator: {
+			gen_phase_an: g("gen_phase_an"),
+			gen_phase_bn: g("gen_phase_bn"),
+			gen_phase_cn: g("gen_phase_cn"),
+			gen_phase_ab: g("gen_phase_ab"),
+			gen_phase_bc: g("gen_phase_bc"),
+			gen_phase_ca: g("gen_phase_ca"),
+			gen_phase_a:  g("gen_phase_a"),
+			gen_phase_b:  g("gen_phase_b"),
+			gen_phase_c:  g("gen_phase_c"),
+			gen_active:   g("gen_active"),
+			gen_reactive: g("gen_reactive"),
+			gen_apparent: g("gen_apparent"),
+			gen_factor:   g("gen_factor"),
+		},
+	}
 }
 
-// ─── Device-specific normalizers ─────────────────────────────────────────────
-
-type DL = Record<string, number>;
-type PartialTelemetry = Partial<Omit<NormalizedTelemetry, "deviceType" | "timestamp">>;
-
-function normalizePCC1302(dl: DL): PartialTelemetry {
+function normalizePCC3300Payload(
+	dl: DL,
+	deviceType: PCC3300Telemetry["deviceType"],
+	timestamp: string | null,
+): PCC3300Telemetry {
+	const g = get(dl)
 	return {
-		controllerType:  dl.general_1   ?? null,
-		operationMode:   dl.general_2   ?? null,
-		gensetState:     dl.general_3   ?? null,
-		activeFault:     dl.general_4   ?? null,
-		activeFaultType: dl.general_5   ?? null,
-		battery:         toFixed(dl.general_1_1),
-		oilPressure:     dl.general_1_2 ?? null,
-		coolantTemp:     toFixed(dl.temperature),
-		rotation:        dl.engine_1    ?? null,
-		starts:          dl.engine_2    ?? null,
-		hourmeter:       calcHourmeter(dl.engine_3, dl.engine_4),
-		genPhaseAN:      dl.voltage_1   ?? null,
-		genPhaseBN:      dl.voltage_2   ?? null,
-		genPhaseCN:      dl.voltage_3   ?? null,
-		genPhaseAB:      dl.voltage_5   ?? null,
-		genPhaseBC:      dl.voltage_6   ?? null,
-		genPhaseCA:      dl.voltage_7   ?? null,
-		genPhaseA:       dl.current_1   ?? null,
-		genPhaseB:       dl.current_2   ?? null,
-		genPhaseC:       dl.current_3   ?? null,
-		genApparent:     dl.power_4     ?? null,
-	};
+		deviceType,
+		timestamp,
+		general: {
+			controller_type:     g("controller_type"),
+			switch_position:     g("switch_position"),
+			genset_state:        g("genset_state"),
+			active_fault:        g("active_fault"),
+			active_fault_type:   g("active_fault_type"),
+			battery_voltage:     g("battery_voltage"),
+			oil_pressure:        g("oil_pressure"),
+			coolant_temperature: g("coolant_temperature"),
+			rotation:            g("rotation"),
+			starts:              g("starts"),
+			hourmeter_highbyte:  g("hourmeter_highbyte"),
+			hourmeter_lowbyte:   g("hourmeter_lowbyte"),
+			hourmeter:           calcHourmeter(dl.hourmeter_highbyte, dl.hourmeter_lowbyte),
+		},
+		alarm: {
+			fault_register:          toBinary16(dl.fault_register),
+			fault_register_extended: toBinary16(dl.fault_register_extended),
+		},
+		generator: {
+			gen_phase_an:  g("gen_phase_an"),
+			gen_phase_bn:  g("gen_phase_bn"),
+			gen_phase_cn:  g("gen_phase_cn"),
+			gen_phase_ab:  g("gen_phase_ab"),
+			gen_phase_bc:  g("gen_phase_bc"),
+			gen_phase_ca:  g("gen_phase_ca"),
+			gen_phase_a:   g("gen_phase_a"),
+			gen_phase_b:   g("gen_phase_b"),
+			gen_phase_c:   g("gen_phase_c"),
+			gen_active:    g("gen_active"),
+			gen_reactive:  g("gen_reactive"),
+			gen_apparent:  g("gen_apparent"),
+			gen_factor:    g("gen_factor"),
+			gen_frequency: g("gen_frequency"),
+		},
+		network: {
+			net_phase_an:  g("net_phase_an"),
+			net_phase_bn:  g("net_phase_bn"),
+			net_phase_cn:  g("net_phase_cn"),
+			net_phase_ab:  g("net_phase_ab"),
+			net_phase_bc:  g("net_phase_bc"),
+			net_phase_ca:  g("net_phase_ca"),
+			net_phase_a:   g("net_phase_a"),
+			net_phase_b:   g("net_phase_b"),
+			net_phase_c:   g("net_phase_c"),
+			net_active:    g("net_active"),
+			net_reactive:  g("net_reactive"),
+			net_apparent:  g("net_apparent"),
+			net_factor:    g("net_factor"),
+			net_frequency: g("net_frequency"),
+		},
+	}
 }
 
-function normalizePCC3300(dl: DL): PartialTelemetry {
+function normalizeMCM3320Payload(
+	dl: DL,
+	timestamp: string | null,
+): MCM3320Telemetry {
+	const g = get(dl)
 	return {
-		controllerType:  dl.General_1           ?? null,
-		operationMode:   dl.General_2           ?? null,
-		gensetState:     dl.General_3           ?? null,
-		activeFault:     dl.General_4           ?? null,
-		genFrequency:    toFixed(dl.frequency),
-		hourmeter:       calcHourmeter(undefined, undefined),
-		genPhaseAN:      dl.voltage_1           ?? null,
-		genPhaseBN:      dl.voltage_2           ?? null,
-		genPhaseCN:      dl.voltage_3           ?? null,
-		genPhaseAB:      dl.voltage_5           ?? null,
-		genPhaseBC:      dl.voltage_6           ?? null,
-		genPhaseCA:      dl.voltage_7           ?? null,
-		genPhaseA:       dl.current_1           ?? null,
-		genPhaseB:       dl.current_2           ?? null,
-		genPhaseC:       dl.current_3           ?? null,
-		netPhaseA:       dl.utility_current_1   ?? null,
-		netPhaseB:       dl.utility_current_2   ?? null,
-		netPhaseC:       dl.utility_current_3   ?? null,
-		netActive:       dl.utility_power_1     ?? null,
-		netReactive:     dl.utility_power_2     ?? null,
-		netApparent:     dl.utility_power_3     ?? null,
-		netFactor:       dl.utility_power_4     ?? null,
-		netFrequency:    toFixed(dl.utility_frequency),
-	};
+		deviceType: "MCM3320",
+		timestamp,
+		general: {
+			number_gensets:     g("number_gensets"),
+			system_capacity:    g("system_capacity"),
+			online_capacity:    g("online_capacity"),
+			operation_mode:     g("operation_mode"),
+			controller_on_time: g("controller_on_time"),
+			ptc_state:          g("ptc_state"),
+			genset_state:       g("genset_state"),
+			active_fault:       g("active_fault"),
+		},
+		generator: {
+			gen_phase_an:  g("gen_phase_an"),
+			gen_phase_bn:  g("gen_phase_bn"),
+			gen_phase_cn:  g("gen_phase_cn"),
+			gen_phase_ab:  g("gen_phase_ab"),
+			gen_phase_bc:  g("gen_phase_bc"),
+			gen_phase_ca:  g("gen_phase_ca"),
+			gen_phase_a:   g("gen_phase_a"),
+			gen_phase_b:   g("gen_phase_b"),
+			gen_phase_c:   g("gen_phase_c"),
+			gen_active:    g("gen_active"),
+			gen_reactive:  g("gen_reactive"),
+			gen_apparent:  g("gen_apparent"),
+			gen_factor:    g("gen_factor"),
+			gen_frequency: g("gen_frequency"),
+		},
+		network: {
+			net_phase_an:  g("net_phase_an"),
+			net_phase_bn:  g("net_phase_bn"),
+			net_phase_cn:  g("net_phase_cn"),
+			net_phase_ab:  g("net_phase_ab"),
+			net_phase_bc:  g("net_phase_bc"),
+			net_phase_ca:  g("net_phase_ca"),
+			net_phase_a:   g("net_phase_a"),
+			net_phase_b:   g("net_phase_b"),
+			net_phase_c:   g("net_phase_c"),
+			net_active:    g("net_active"),
+			net_reactive:  g("net_reactive"),
+			net_apparent:  g("net_apparent"),
+			net_factor:    g("net_factor"),
+			net_frequency: g("net_frequency"),
+		},
+		unifilar: {
+			generator: g("generator"),
+			network:   g("network"),
+			cgr:       g("cgr"),
+			crd:       g("crd"),
+		},
+	}
 }
 
-// ─── Normalizer registry ──────────────────────────────────────────────────────
+// ─── Normalizer Registry ──────────────────────────────────────────────────────
 
-const normalizers: Record<string, (dl: DL) => PartialTelemetry> = {
-	PCC1301: normalizePCC1302,
-	PCC1302: normalizePCC1302,
-	PS500:   normalizePCC1302,
-	PS600:   normalizePCC1302,
-	PCC3300: normalizePCC3300,
-	"PCC3300PTC-A": normalizePCC3300,
-};
+type NormalizerFn = (
+	dl: DL,
+	deviceType: string,
+	timestamp: string | null,
+) => NormalizedTelemetry
+
+const normalizers: Record<string, NormalizerFn> = {
+	PCC1301:        (dl, da, ts) => normalizePCC1302Payload(dl, da as PCC1302Telemetry["deviceType"], ts),
+	PCC1302:        (dl, da, ts) => normalizePCC1302Payload(dl, da as PCC1302Telemetry["deviceType"], ts),
+	PS500:          (dl, da, ts) => normalizePCC1302Payload(dl, da as PCC1302Telemetry["deviceType"], ts),
+	PS600:          (dl, da, ts) => normalizePCC1302Payload(dl, da as PCC1302Telemetry["deviceType"], ts),
+	PCC3300:        (dl, da, ts) => normalizePCC3300Payload(dl, da as PCC3300Telemetry["deviceType"], ts),
+	"PCC3300PTC-A": (dl, da, ts) => normalizePCC3300Payload(dl, da as PCC3300Telemetry["deviceType"], ts),
+	MCM3320:        (dl, _da, ts) => normalizeMCM3320Payload(dl, ts),
+}
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-/**
- * Normalize a raw MQTT message payload into a unified NormalizedTelemetry object.
- * Returns `null` if no normalizer is registered for the given `deviceType`.
- */
 export function normalizeMqttPayload(
 	dl: DL,
 	deviceType: string,
 	timestamp: string | null,
 ): NormalizedTelemetry | null {
-	const normalizer = normalizers[deviceType];
+	const normalizer = normalizers[deviceType]
 	if (!normalizer) {
-		console.warn(`[mqttNormalizer] No normalizer for device type: "${deviceType}"`);
-		return null;
+		console.warn(`[mqttNormalizer] No normalizer for device type: "${deviceType}"`)
+		return null
 	}
-	return { ...emptyTelemetry(deviceType, timestamp), ...normalizer(dl) };
+	return normalizer(dl, deviceType, timestamp)
 }
 
-// ─── Label helpers (shared by page and any consumer) ─────────────────────────
+// ─── Label Helpers ────────────────────────────────────────────────────────────
 
 export const GENSET_STATE_LABEL: Record<number, string> = {
 	0: "Parado",
 	1: "Pré-Inicialização",
 	2: "Subida de Rotação",
 	3: "Em Funcionamento",
-};
+}
 
 export const OPERATION_MODE_LABEL: Record<number, string> = {
 	0: "Off",
 	1: "Auto",
 	2: "Manual",
 	3: "Teste",
-};
+}
 
 export const FAULT_TYPE_LABEL: Record<number, string> = {
 	0: "Normal",
 	1: "Aviso",
 	4: "Desligamento",
-};
+}
 
 export function gensetStateLabel(state: number | null): string {
-	if (state === null) return "–";
-	return GENSET_STATE_LABEL[state] ?? String(state);
+	if (state === null) return "–"
+	return GENSET_STATE_LABEL[state] ?? String(state)
 }
 
 export function operationModeLabel(mode: number | null): string {
-	if (mode === null) return "–";
-	return OPERATION_MODE_LABEL[mode] ?? String(mode);
+	if (mode === null) return "–"
+	return OPERATION_MODE_LABEL[mode] ?? String(mode)
 }
 
 export function faultTypeLabel(type: number | null): string {
-	if (type === null) return "–";
-	return FAULT_TYPE_LABEL[type] ?? String(type);
+	if (type === null) return "–"
+	return FAULT_TYPE_LABEL[type] ?? String(type)
 }

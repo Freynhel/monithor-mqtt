@@ -10,7 +10,7 @@ import { alarmsRoutine, alarmLock } from "./process/alarms";
 /* 🔧 Constants and In-Memory State
 /*-----------------------------------------------------------------------------*/
 
-const MQTT_BROKER = "mqtt://test.mosquitto.org:1883";
+const MQTT_BROKER = "mqtt://broker.hivemq.com:1883";
 
 let MQTT_TOPICS: Record<number, string> = {};
 let TOPIC_TO_GENERATOR_ID: Record<string, number> = {};

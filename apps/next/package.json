@@ -12,6 +12,7 @@
     "@auth0/nextjs-auth0": "^4.15.0",
     "@fontsource/dm-mono": "^5.2.7",
     "@fontsource/dm-sans": "^5.2.8",
+    "@monithor-mqtt/shared": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",

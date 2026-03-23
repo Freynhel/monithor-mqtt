@@ -31,7 +31,7 @@ import {
  * Override via NEXT_PUBLIC_MQTT_WS_URL environment variable.
  */
 const MQTT_WS_BROKER =
-	process.env.NEXT_PUBLIC_MQTT_WS_URL ?? "ws://test.mosquitto.org:8080/mqtt";
+	process.env.NEXT_PUBLIC_MQTT_WS_URL ?? "ws://broker.hivemq.com:8000/mqtt";
 
 /** Minimum ms between React state updates — prevents unnecessary re-renders. */
 const UPDATE_INTERVAL_MS = 2_000;
